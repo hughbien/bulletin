@@ -11,41 +11,62 @@ module Bulletin
   VERSION = '0.0.1'
 
   class App
+    attr_reader :options, :feeds
+    
     def initialize(production = true)
       @production = production
-      setup_db
+      @options = {}
+      @feeds = []
     end
 
+    def refresh
+      items = @feeds.map do |feed|
+        fetch_feed(feed.uri)
+      end.flatten
+      items.each(&:save)
+    end
+
+    def set(option, value)
+      @options[option] = value
+    end
+
+    def feed(title, uri)
+      @feeds << OpenStruct.new(:title => title, :uri => uri)
+    end
+
+    def load_config
+      config = File.join(ENV['HOME'], '.bulletinrc')
+      if File.exists?(config)
+        app = self
+        Object.class_eval do
+          define_method(:set) { |opt, val| app.set(opt, val) }
+          define_method(:feed) { |title, uri| app.feed(title, uri) }
+        end
+        load(config, true)
+      end
+    end
+
+    private
     def production?
       !!@production
     end
 
     def fetch_feed(uri)
-      RSS::Parser.parse(open(uri) { |io| io.read }, false)
+      rss = RSS::Parser.parse(open(uri) { |io| io.read }, false)
+      rss.items.map do |item|
+        Item.new(:title => item.title,
+                 :uri => item.link,
+                 :description => item.description)
+      end
     end
 
-    def options
-      self.class.instance_variable_get(:@options) || {}
-    end
-
-    def feeds
-      self.class.instance_variable_get(:@feeds) || []
-    end
-
-    def setup_db
-      DataMapper.setup(:default, production? ?
+    def self.setup_db(production = true)
+      DataMapper.setup(:default, production ?
         "sqlite://#{File.expand_path('~/.bulletindb')}" :
         "sqlite3::memory:")
-    end
-
-    def self.set(option, value)
-      @options ||= {}
-      @options[option] = value
-    end
-
-    def self.feed(title, uri)
-      @feeds ||= []
-      @feeds << OpenStruct.new(:title => title, :uri => uri)
+      if !DataMapper.repository(:default).adapter.storage_exists?('items')
+        DataMapper.auto_migrate! 
+      end
     end
   end
 
@@ -58,4 +79,6 @@ module Bulletin
     property :description, Text
     property :uri, URI
   end
+
+  DataMapper.finalize
 end

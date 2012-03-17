@@ -3,22 +3,24 @@ require 'optparse'
 require File.expand_path('bulletin', File.dirname(__FILE__))
 
 ARGV.options do |o|
+  Bulletin::App.setup_db
+  bulletin = Bulletin::App.new(true)
+  bulletin.load_config
   o.set_summary_indent('  ')
   o.banner =    "Usage: #{File.basename($0)} [OPTIONS]"
-  o.define_head 'Personalized Hacker News client'
-  o.on('-d', '--dislike ID', 'dislike story') { |id| Bulletin.dislike(id); exit }
-  o.on('-D', '--dislikes', 'show all dislikes') { Bulletin.dislikes; exit }
-  o.on('-l', '--like ID', 'like story') { |id| Bulletin.like(id); exit }
-  o.on('-L', '--likes', 'show all likes') { |id| Bulletin.likes; exit }
-  o.on('-o', '--open ID', 'open story') { |id| Bulletin.open(id); exit }
-  o.on('-p', '--page PAGE', 'show page') { |page| Bulletin.run(page); exit }
-  o.on('-s', '--sync', 'syncs and ranks stories') { Bulletin.sync; exit }
-  o.on('-u', '--undo ID', 'undo like/dislike') { |id| Bulletin.undo(id); exit }
+  o.define_head 'RSS reader with personalized rankings'
+  o.on('-l', '--like ID', 'like story') { |id| bulletin.like(id); exit }
+  o.on('-L', '--likes', 'show all likes') { |id| bulletin.likes; exit }
+  o.on('-o', '--open ID', 'open story') { |id| bulletin.open(id); exit }
+  o.on('-p', '--page PAGE', 'show page') { |page| bulletin.run(page); exit }
+  o.on('-r', '--read ID', 'read story') { |id| bulletin.read(id); exit }
+  o.on('-R', '--refresh', 'refresh and ranks stories') { bulletin.refresh; exit }
+  o.on('-u', '--unlike ID', 'undo like') { |id| bulletin.unlike(id); exit }
   o.on('-v', '--version', 'show version') do
     puts "bulletin version #{Bulletin::VERSION}"
     exit
   end
   o.on('-h', '--help', 'show this help message') { puts o; exit }
   o.parse!
-  ARGV.empty? ? Bulletin.run : puts(o)
+  ARGV.empty? ? bulletin.run : puts(o)
 end
