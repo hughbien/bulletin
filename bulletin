@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+require 'optparse'
+require File.expand_path('bulletin', File.dirname(__FILE__))
+
+ARGV.options do |o|
+  o.set_summary_indent('  ')
+  o.banner =    "Usage: #{File.basename($0)} [OPTIONS]"
+  o.define_head 'Personalized Hacker News client'
+  o.on('-d', '--dislike ID', 'dislike story') { |id| Bulletin.dislike(id); exit }
+  o.on('-D', '--dislikes', 'show all dislikes') { Bulletin.dislikes; exit }
+  o.on('-l', '--like ID', 'like story') { |id| Bulletin.like(id); exit }
+  o.on('-L', '--likes', 'show all likes') { |id| Bulletin.likes; exit }
+  o.on('-o', '--open ID', 'open story') { |id| Bulletin.open(id); exit }
+  o.on('-p', '--page PAGE', 'show page') { |page| Bulletin.run(page); exit }
+  o.on('-s', '--sync', 'syncs and ranks stories') { Bulletin.sync; exit }
+  o.on('-u', '--undo ID', 'undo like/dislike') { |id| Bulletin.undo(id); exit }
+  o.on('-v', '--version', 'show version') do
+    puts "bulletin version #{Bulletin::VERSION}"
+    exit
+  end
+  o.on('-h', '--help', 'show this help message') { puts o; exit }
+  o.parse!
+  ARGV.empty? ? Bulletin.run : puts(o)
+end
