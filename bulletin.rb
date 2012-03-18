@@ -54,9 +54,7 @@ module Bulletin
     def fetch_feed(uri)
       rss = RSS::Parser.parse(open(uri) { |io| io.read }, false)
       rss.items.map do |item|
-        Item.new(:title => item.title,
-                 :uri => item.link,
-                 :description => item.description)
+        Item.from_rss(rss, item)
       end
     end
 
@@ -75,9 +73,25 @@ module Bulletin
 
     property :id, Serial
     property :created_at, DateTime
+    property :published_at, DateTime
+    property :channel_title, String
     property :title, String
-    property :description, Text
+    property :desc, Text
+    property :desc_html, Text
     property :uri, URI
+
+    def self.from_rss(rss, item)
+      Item.new(:title => item.title,
+               :uri => item.link,
+               :channel_title => rss.channel.title,
+               :desc_html => item.description,
+               :desc => strip_html(item.description),
+               :published_at => item.date)
+    end
+
+    def self.strip_html(html)
+      html
+    end
   end
 
   DataMapper.finalize

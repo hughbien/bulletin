@@ -1,7 +1,7 @@
 require File.join(File.dirname(__FILE__), 'bulletin')
 require 'minitest/autorun'
 
-class AppTest < MiniTest::Unit::TestCase
+class BulletinTest < MiniTest::Unit::TestCase
   Bulletin::App.setup_db(false)
 
   def setup
@@ -18,7 +18,10 @@ class AppTest < MiniTest::Unit::TestCase
     item = Bulletin::Item.first
     assert_equal('Star City', item.title)
     assert(item.created_at)
-    assert(item.description)
+    assert(item.desc)
+  end
+
+  def test_strip_html
   end
 
   def test_configure
