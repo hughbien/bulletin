@@ -23,7 +23,7 @@ module Bulletin
 
     def refresh
       items = @feeds.map do |feed|
-        fetch_feed(feed.uri)
+        fetch_feed(feed)
       end.flatten
       items.each(&:save)
     end
@@ -32,8 +32,8 @@ module Bulletin
       @options[option] = value
     end
 
-    def feed(title, uri)
-      @feeds << OpenStruct.new(:title => title, :uri => uri)
+    def feed(uri)
+      @feeds << uri
     end
 
     def load_config
@@ -42,7 +42,7 @@ module Bulletin
         app = self
         Object.class_eval do
           define_method(:set) { |opt, val| app.set(opt, val) }
-          define_method(:feed) { |title, uri| app.feed(title, uri) }
+          define_method(:feed) { |uri| app.feed(uri) }
         end
         load(config, true)
       end

@@ -15,8 +15,8 @@ Open up `~/.bulletinrc` to configure it:
     set :db_file, '~/.bulletindb'
     set :expire, 30     # 30 days
 
-    feed 'Title', 'http://feed-url/rss.xml'
-    feed 'Second', 'http://second-feed/rss.xml'
+    feed 'http://feed-url/rss.xml'
+    feed 'http://second-feed/rss.xml'
 
 Usage
 =====

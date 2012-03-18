@@ -11,7 +11,7 @@ class BulletinTest < MiniTest::Unit::TestCase
 
   def test_refresh
     assert_equal(0, Bulletin::Item.count)
-    @bulletin.feed 'Liftoff News', sample_uri
+    @bulletin.feed sample_uri
     @bulletin.refresh
     assert_equal(4, Bulletin::Item.count)
 
@@ -28,13 +28,12 @@ class BulletinTest < MiniTest::Unit::TestCase
   def test_configure
     @bulletin.set :browser, 'firefox'
     @bulletin.set :per_page, 20
-    @bulletin.feed 'Liftoff News', 'http://liftoff.msfc.nasa.gov/rss.xml'
+    @bulletin.feed 'http://liftoff.msfc.nasa.gov/rss.xml'
 
     assert_equal('firefox', @bulletin.send(:options)[:browser])
     assert_equal(20, @bulletin.send(:options)[:per_page])
-    assert_equal('Liftoff News', @bulletin.send(:feeds)[0].title)
     assert_equal('http://liftoff.msfc.nasa.gov/rss.xml',
-                 @bulletin.send(:feeds)[0].uri)
+                 @bulletin.send(:feeds)[0])
   end
 
   def test_environment
