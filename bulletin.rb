@@ -19,6 +19,32 @@ module Bulletin
       @production = production
       @options = {}
       @feeds = []
+      @term_width = `tput cols`.to_i
+    end
+
+    def run
+      items = Item.all
+      num_width = items.size.to_s.size
+      Item.all.each_with_index do |item, index|
+        num = index + 1
+        width = num_width - num.to_s.size
+        line = "#{' ' * width}#{num}. #{item.channel_title} > #{item.title}"
+        puts truncate(line)
+      end
+    end
+
+    def read(id)
+      item = Item.get(id)
+      title = "#{item.channel_title} > #{item.title}"
+      puts wrap(title, @term_width)
+      puts "=" * [@term_width, title.size].min
+      puts ""
+      puts wrap(item.desc, @term_width)
+    end
+
+    def open(id)
+      item = Item.get(id)
+      `firefox #{item.uri}`
     end
 
     def refresh
@@ -50,6 +76,24 @@ module Bulletin
     end
 
     private
+    def truncate(str)
+      str.size <= @term_width ?
+        str :
+        "#{str[0..@term_width-4]}..."
+    end
+
+    def wrap(str, max)
+      line, all = '', []
+      str.split.each do |l|
+        if (line+l).length >= max
+          all.push(line)
+          line = ''
+        end
+        line += line == '' ? l : ' ' + l
+      end
+      all.push(line).join("\n")
+    end
+
     def production?
       !!@production
     end
@@ -65,7 +109,7 @@ module Bulletin
       DataMapper.setup(:default, production ?
         "sqlite://#{File.expand_path('~/.bulletindb')}" :
         "sqlite3::memory:")
-      if !DataMapper.repository(:default).adapter.storage_exists?('items')
+      if !DataMapper.repository(:default).adapter.storage_exists?('bulletin_items')
         DataMapper.auto_migrate! 
       end
     end
@@ -77,8 +121,8 @@ module Bulletin
     property :id, Serial
     property :created_at, DateTime
     property :published_at, DateTime
-    property :channel_title, String
-    property :title, String
+    property :channel_title, String, :length => 255
+    property :title, String, :length => 255
     property :desc, Text
     property :desc_html, Text
     property :uri, URI
@@ -95,4 +139,5 @@ module Bulletin
   end
 
   DataMapper.finalize
+  DataMapper::Model.raise_on_save_failure = true
 end
