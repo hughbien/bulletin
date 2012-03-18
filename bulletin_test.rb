@@ -17,11 +17,12 @@ class BulletinTest < MiniTest::Unit::TestCase
 
     item = Bulletin::Item.first
     assert_equal('Star City', item.title)
+    assert_equal('Liftoff News', item.channel_title)
     assert(item.created_at)
+    assert(item.published_at)
     assert(item.desc)
-  end
-
-  def test_strip_html
+    assert(item.desc_html)
+    assert(item.uri)
   end
 
   def test_configure

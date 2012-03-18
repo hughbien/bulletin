@@ -6,6 +6,8 @@ require 'rss/2.0'
 require 'ostruct'
 require 'data_mapper'
 require 'dm-types'
+require 'cgi'
+require 'nokogiri'
 
 module Bulletin
   VERSION = '0.0.1'
@@ -81,16 +83,13 @@ module Bulletin
     property :uri, URI
 
     def self.from_rss(rss, item)
+      html = CGI.unescape_html(item.description)
       Item.new(:title => item.title,
                :uri => item.link,
                :channel_title => rss.channel.title,
-               :desc_html => item.description,
-               :desc => strip_html(item.description),
+               :desc_html => html,
+               :desc => Nokogiri::HTML(html).content,
                :published_at => item.date)
-    end
-
-    def self.strip_html(html)
-      html
     end
   end
 

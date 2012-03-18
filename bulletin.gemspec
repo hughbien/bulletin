@@ -14,6 +14,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = '>= 1.3.6'
   s.add_dependency 'dm-sqlite-adapter'
   s.add_dependency 'data_mapper'
+  s.add_dependency 'nokogiri'
   s.add_development_dependency 'minitest'
  
   s.files        = Dir.glob('*.{rb,.md}') + %w(bulletin)
