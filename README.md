@@ -1,7 +1,8 @@
 Description
 ===========
 
-Command line RSS reader that automatically ranks items according to your tastes.
+Personalized news client.  Aggregates news from RSS feeds, Reddit, and Hacker
+News and ranks links according to your tastes.
 
 Installation
 ============
@@ -10,13 +11,17 @@ Installation
 
 Open up `~/.bulletinrc` to configure it:
 
-    set :browser, 'firefox'
-    set :per_page, 20
-    set :db_file, '~/.bulletindb'
-    set :expire, 30     # 30 days
+    set :browser,  'firefox'
+    set :per_page, 80
+    set :expire,   10 # days
 
     feed 'http://feed-url/rss.xml'
     feed 'http://second-feed/rss.xml'
+
+    social :hackernews
+    social :reddit
+    social :subreddit, :gaming
+    social :subreddit, :programming
 
 Usage
 =====
@@ -29,18 +34,17 @@ Now just start browsing with:
 
     % bulletin
 
-Use the `--page` option to view other pages.  Use `--read` to read a story from
-the command line or `--open` to open it in a browser.  Use `--like` to like a
-story which will help with ranking according to your tastes.
+Use the `--page` option to view other pages.  Use `--open` to open it in a
+browser.  Use `--like` to like a link which will help with ranking according to
+your tastes.
 
     % bulletin --page 2
-    % bulletin --read 45
     % bulletin --open 45
     % bulletin --like 45
 
-You can like a story and read/open it simultaneously:
+You can like a link and open it simultaneously:
 
-    % bulletin --like --read 45
+    % bulletin --like --open 45
 
 You can show previous likes with `--likes` or undo it with `--unlike`:
 

@@ -28,18 +28,9 @@ module Bulletin
       Item.all.each_with_index do |item, index|
         num = index + 1
         width = num_width - num.to_s.size
-        line = "#{' ' * width}#{num}. #{item.channel_title} > #{item.title}"
+        line = "#{' ' * width}#{num}. #{item.full_title}"
         puts truncate(line)
       end
-    end
-
-    def read(id)
-      item = Item.get(id)
-      title = "#{item.channel_title} > #{item.title}"
-      puts wrap(title, @term_width)
-      puts "=" * [@term_width, title.size].min
-      puts ""
-      puts wrap(item.desc, @term_width)
     end
 
     def open_item(id)
@@ -63,6 +54,12 @@ module Bulletin
       @feeds << uri
     end
 
+    def social(site, *args)
+      if site == :hackernews
+        @feeds << 'http://news.ycombinator.com/rss'
+      end
+    end
+
     def load_config
       config = File.join(ENV['HOME'], '.bulletinrc')
       if File.exists?(config)
@@ -70,6 +67,7 @@ module Bulletin
         Object.class_eval do
           define_method(:set) { |opt, val| app.set(opt, val) }
           define_method(:feed) { |uri| app.feed(uri) }
+          define_method(:social) { |site, *args| app.social(site, *args) }
         end
         load(config, true)
       end
@@ -80,18 +78,6 @@ module Bulletin
       str.size <= @term_width ?
         str :
         "#{str[0..@term_width-4]}..."
-    end
-
-    def wrap(str, max)
-      line, all = '', []
-      str.split.each do |l|
-        if (line+l).length >= max
-          all.push(line)
-          line = ''
-        end
-        line += line == '' ? l : ' ' + l
-      end
-      all.push(line).join("\n")
     end
 
     def production?
@@ -125,20 +111,17 @@ module Bulletin
     property :id, Serial
     property :created_at, DateTime
     property :published_at, DateTime
-    property :channel_title, String, :length => 255
     property :title, String, :length => 255
-    property :desc, Text
-    property :desc_html, Text
     property :uri, URI
 
     def self.from_rss(rss, item)
-      html = CGI.unescape_html(item.description)
-      Item.new(:title => item.title,
-               :uri => item.link,
-               :channel_title => rss.channel.title,
-               :desc_html => html,
-               :desc => Nokogiri::HTML(html).content,
-               :published_at => item.date)
+      Item.new(:published_at => item.date,
+               :title => item.title.strip,
+               :uri => item.link)
+    end
+
+    def full_title
+      "#{title} (#{uri.host})"
     end
   end
 
