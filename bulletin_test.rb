@@ -23,6 +23,9 @@ class BulletinTest < MiniTest::Unit::TestCase
     assert(item.desc)
     assert(item.desc_html)
     assert(item.uri)
+
+    @bulletin.refresh
+    assert_equal(4, Bulletin::Item.count)
   end
 
   def test_configure

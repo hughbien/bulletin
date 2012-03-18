@@ -25,7 +25,8 @@ module Bulletin
       items = @feeds.map do |feed|
         fetch_feed(feed)
       end.flatten
-      items.each(&:save)
+      all_uris = Item.all.map(&:uri)
+      items.reject { |i| all_uris.include?(i.uri) }.each(&:save)
     end
 
     def set(option, value)
