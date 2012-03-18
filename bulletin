@@ -11,7 +11,7 @@ ARGV.options do |o|
   o.define_head 'RSS reader with personalized rankings'
   o.on('-l', '--like ID', 'like story') { |id| bulletin.like(id); exit }
   o.on('-L', '--likes', 'show all likes') { |id| bulletin.likes; exit }
-  o.on('-o', '--open ID', 'open story') { |id| bulletin.open(id); exit }
+  o.on('-o', '--open ID', 'open story') { |id| bulletin.open_item(id); exit }
   o.on('-p', '--page PAGE', 'show page') { |page| bulletin.run(page); exit }
   o.on('-r', '--read ID', 'read story') { |id| bulletin.read(id); exit }
   o.on('-R', '--refresh', 'refresh and ranks stories') { bulletin.refresh; exit }

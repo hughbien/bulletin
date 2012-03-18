@@ -42,15 +42,15 @@ module Bulletin
       puts wrap(item.desc, @term_width)
     end
 
-    def open(id)
+    def open_item(id)
       item = Item.get(id)
-      `firefox #{item.uri}`
+      `firefox #{item.uri}` if item
     end
 
     def refresh
       items = @feeds.map do |feed|
         fetch_feed(feed)
-      end.flatten
+      end.flatten.reject(&:nil?)
       all_uris = Item.all.map(&:uri)
       items.reject { |i| all_uris.include?(i.uri) }.each(&:save)
     end
@@ -100,6 +100,10 @@ module Bulletin
 
     def fetch_feed(uri)
       rss = RSS::Parser.parse(open(uri) { |io| io.read }, false)
+      if rss.nil?
+        puts "Can't retrieve #{uri}"
+        return
+      end
       rss.items.map do |item|
         Item.from_rss(rss, item)
       end
