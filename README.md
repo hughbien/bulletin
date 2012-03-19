@@ -49,8 +49,9 @@ You can show previous likes with `--likes` or undo it with `--unlike`:
 TODO
 ====
 
-* GP for ranking; terminals: url,title,links
-  functions: add/sub/mul/div/scores
+* handle expiration
+* add support for hacker news and reddit
+* add support for configuring browser, per_page, and expire
 
 License
 =======

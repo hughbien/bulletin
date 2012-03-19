@@ -82,6 +82,7 @@ module Bulletin
       end.flatten.reject(&:nil?)
       all_uris = Item.all.map(&:uri)
       items.reject { |i| all_uris.include?(i.uri) }.each(&:save)
+      evolve!
     end
 
     def set(option, value)
@@ -112,6 +113,67 @@ module Bulletin
     end
 
     private
+    def evolve!
+      # initial population
+      items = Bulletin::Item.all
+      population = (0...100).map { items.sort_by { rand } }
+      scores = Array.new(100)
+      
+      100.times do
+        # evaluate
+        scores = population.map { |items| evaluate(items) }
+
+        # select
+        new_population = (0...100).map do
+          left, right = rand(100), rand(100)
+          winner = scores[left] > scores[right] ? left : right
+          population[winner]
+        end
+        population = new_population
+        
+        # variation
+        population.map! do |pop|
+          if rand < 0.2
+            (rand(pop.size) / 10).times do
+              item = pop.delete_at(rand(pop.size))
+              pop.insert(rand(pop.size))
+            end
+            pop
+          else
+            pop
+          end
+        end
+      end
+
+      # get the best for last generation
+      best_index = population.map { |items| evaluate(items) }.
+        each_with_index.
+        max[1]
+      winner = population[best_index]
+      winner.each_with_index do |item, index|
+        item.rank = index + 1
+        item.save
+      end
+    end
+
+    def evaluate(items)
+      @likes ||= begin
+        hosts = {}
+        Bulletin::Item.all(:like => true).each do |i|
+          hosts[i.host] ||= 0
+          hosts[i.host] = hosts[i.host] + 1
+        end
+        hosts
+      end
+      score = 0
+      items.reverse.each_with_index do |item, index|
+        if @likes[item.host]
+          score += (@likes[item.host] * index)
+        end
+      end
+      score
+    end
+
     def truncate(str)
       str.size <= @term_width ?
         str :
@@ -130,7 +192,7 @@ module Bulletin
       end
       rss.items.map do |item|
         Item.from_rss(rss, item)
-      end
+      end.reject(&:nil?)
     end
 
     def self.setup_db(production = true)
@@ -155,6 +217,7 @@ module Bulletin
     property :rank, Integer, :default => 0, :key => true
 
     def self.from_rss(rss, item)
+      return nil if item.link.nil?
       Item.new(:published_at => item.date,
                :title => item.title.to_s.strip,
                :uri => item.link)
@@ -162,6 +225,10 @@ module Bulletin
 
     def full_title
       "#{title} (#{uri.host})"
+    end
+
+    def host
+      uri.host
     end
   end
 
