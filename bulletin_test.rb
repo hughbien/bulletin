@@ -20,7 +20,7 @@ class BulletinTest < MiniTest::Unit::TestCase
     assert(item.created_at)
     assert(item.published_at)
     assert(item.uri)
-    refute(item.rank)
+    assert_equal(0, item.rank)
 
     @bulletin.refresh
     assert_equal(4, Bulletin::Item.count)

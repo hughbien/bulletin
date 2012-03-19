@@ -26,28 +26,28 @@ module Bulletin
       total = Item.count
       per_page = 20
       page = page.to_i - 1
-      items = Item.all(:order => [:id],
-                       :id.gt => (per_page * page),
-                       :id.lte => (per_page * (page + 1)))
+      items = Item.all(:order => [:rank],
+                       :rank.gt => (per_page * page),
+                       :rank.lte => (per_page * (page + 1)))
       return if items.empty?
 
-      num_width = items.last.id.to_s.size
+      num_width = items.last.rank.to_s.size
       items.each do |item|
-        num = item.id
+        num = item.rank
         width = num_width - num.to_s.size
         line = "#{' ' * width}#{num}. #{item.full_title}"
         puts truncate(line)
       end
-      puts (' ' * num_width) + "  (#{items.first.id}-#{items.last.id} of #{total})"
+      puts (' ' * num_width) + "  (#{items.first.rank}-#{items.last.rank} of #{total})"
     end
 
     def open_item(id)
-      item = Item.get(id)
+      item = Item.first(:rank => id)
       `thunar #{item.uri}` if item
     end
 
     def like(id)
-      item = Item.get(id)
+      item = Item.first(:rank => id)
       if item
         item.like = true
         item.save
@@ -57,7 +57,7 @@ module Bulletin
     def unlike(id)
       return if id !~ /^l\d+$/
       index = id[1..-1].to_i
-      items = Item.all(:like => true, :order => [:id])
+      items = Item.all(:like => true, :order => [:rank])
       item = items[index - 1]
       if item
         item.like = false
@@ -66,7 +66,7 @@ module Bulletin
     end
 
     def likes
-      items = Item.all(:like => true, :order => [:id])
+      items = Item.all(:like => true, :order => [:rank])
       num_width = items.size.to_s.size
       items.each_with_index do |item, index|
         num = index + 1
@@ -152,7 +152,7 @@ module Bulletin
     property :title, String, :length => 255
     property :uri, URI
     property :like, Boolean, :default => false
-    property :rank, Integer
+    property :rank, Integer, :default => 0, :key => true
 
     def self.from_rss(rss, item)
       Item.new(:published_at => item.date,
