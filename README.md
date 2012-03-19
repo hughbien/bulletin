@@ -54,8 +54,6 @@ You can show previous likes with `--likes` or undo it with `--unlike`:
 TODO
 ====
 
-* save news to local db
-* command line UI
 * GP for ranking; terminals: url,title,links
   functions: add/sub/mul/div/scores
 

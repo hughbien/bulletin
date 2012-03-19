@@ -46,6 +46,36 @@ module Bulletin
       `thunar #{item.uri}` if item
     end
 
+    def like(id)
+      item = Item.get(id)
+      if item
+        item.like = true
+        item.save
+      end
+    end
+
+    def unlike(id)
+      return if id !~ /^l\d+$/
+      index = id[1..-1].to_i
+      items = Item.all(:like => true, :order => [:id])
+      item = items[index - 1]
+      if item
+        item.like = false
+        item.save
+      end
+    end
+
+    def likes
+      items = Item.all(:like => true, :order => [:id])
+      num_width = items.size.to_s.size
+      items.each_with_index do |item, index|
+        num = index + 1
+        width = num_width - num.to_s.size
+        line = "#{' ' * width}l#{num}. #{item.full_title}"
+        puts truncate(line)
+      end
+    end
+
     def refresh
       items = @feeds.map do |feed|
         fetch_feed(feed)
@@ -121,6 +151,7 @@ module Bulletin
     property :published_at, DateTime
     property :title, String, :length => 255
     property :uri, URI
+    property :like, Boolean, :default => false
 
     def self.from_rss(rss, item)
       Item.new(:published_at => item.date,
