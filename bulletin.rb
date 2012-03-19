@@ -22,20 +22,28 @@ module Bulletin
       @term_width = `tput cols`.to_i
     end
 
-    def run
-      items = Item.all
-      num_width = items.size.to_s.size
-      Item.all.each_with_index do |item, index|
-        num = index + 1
+    def run(page=1)
+      total = Item.count
+      per_page = 20
+      page = page.to_i - 1
+      items = Item.all(:order => [:id],
+                       :id.gt => (per_page * page),
+                       :id.lte => (per_page * (page + 1)))
+      return if items.empty?
+
+      num_width = items.last.id.to_s.size
+      items.each do |item|
+        num = item.id
         width = num_width - num.to_s.size
         line = "#{' ' * width}#{num}. #{item.full_title}"
         puts truncate(line)
       end
+      puts (' ' * num_width) + "  (#{items.first.id}-#{items.last.id} of #{total})"
     end
 
     def open_item(id)
       item = Item.get(id)
-      `firefox #{item.uri}` if item
+      `thunar #{item.uri}` if item
     end
 
     def refresh
