@@ -14,6 +14,10 @@ task :clean do
   rm Dir.glob('*.gem')
 end
 
+task :tags do
+  `ctags -f .tags *.rb`
+end
+
 task :push => :build do
   `gem push bulletin-#{Bulletin::VERSION}.gem`
 end

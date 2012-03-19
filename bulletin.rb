@@ -152,10 +152,11 @@ module Bulletin
     property :title, String, :length => 255
     property :uri, URI
     property :like, Boolean, :default => false
+    property :rank, Integer
 
     def self.from_rss(rss, item)
       Item.new(:published_at => item.date,
-               :title => item.title.strip,
+               :title => item.title.to_s.strip,
                :uri => item.link)
     end
 

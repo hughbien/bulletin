@@ -8,7 +8,7 @@ ARGV.options do |o|
   bulletin.load_config
   o.set_summary_indent('  ')
   o.banner =    "Usage: #{File.basename($0)} [OPTIONS]"
-  o.define_head 'RSS reader with personalized rankings'
+  o.define_head 'Personalized news client'
   o.on('-l', '--like ID', 'like link') { |id| bulletin.like(id); exit }
   o.on('-L', '--likes', 'show all likes') { |id| bulletin.likes; exit }
   o.on('-o', '--open ID', 'open link') { |id| bulletin.open_item(id); exit }

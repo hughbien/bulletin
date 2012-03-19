@@ -1,8 +1,8 @@
 Description
 ===========
 
-Personalized news client.  Aggregates news from RSS feeds, Reddit, and Hacker
-News and ranks links according to your tastes.
+Personalized news client.  Aggregates news from RSS feeds and ranks according
+to your tastes.
 
 Installation
 ============
@@ -17,11 +17,6 @@ Open up `~/.bulletinrc` to configure it:
 
     feed 'http://feed-url/rss.xml'
     feed 'http://second-feed/rss.xml'
-
-    social :hackernews
-    social :reddit
-    social :subreddit, :gaming
-    social :subreddit, :programming
 
 Usage
 =====
