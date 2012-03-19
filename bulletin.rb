@@ -24,7 +24,7 @@ module Bulletin
 
     def run(page=1)
       total = Item.count
-      per_page = 20
+      per_page = options[:per_page] || 20
       page = page.to_i - 1
       items = Item.all(:order => [:rank],
                        :rank.gt => (per_page * page),
@@ -43,7 +43,7 @@ module Bulletin
 
     def open_item(id)
       item = Item.first(:rank => id)
-      `thunar #{item.uri}` if item
+      `#{options[:browser] || 'firefox'} #{item.uri}` if item
     end
 
     def like(id)
