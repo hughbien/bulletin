@@ -136,7 +136,7 @@ module Bulletin
           if rand < 0.2
             (rand(pop.size) / 10).times do
               item = pop.delete_at(rand(pop.size))
-              pop.insert(rand(pop.size))
+              pop.insert(rand(pop.size), item)
             end
             pop
           else
