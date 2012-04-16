@@ -57,10 +57,8 @@ module Bulletin
     end
 
     def unlike(id)
-      return if id !~ /^l\d+$/
-      index = id[1..-1].to_i
-      items = Item.all(:like => true, :order => [:rank])
-      item = items[index - 1]
+      return if id !~ /^\d+$/
+      item = Item.first(:like => true, :rank => id)
       if item
         item.like = false
         item.save
@@ -70,10 +68,11 @@ module Bulletin
     def likes
       items = Item.all(:like => true, :order => [:rank])
       num_width = items.size.to_s.size
-      items.each_with_index do |item, index|
-        num = index + 1
+      items.each do |item|
+        num = item.rank
         width = num_width - num.to_s.size
-        line = "#{' ' * width}l#{num}. #{item.full_title}"
+        prefix = "#{' ' * width}#{num}".colorize(:light_blue)
+        line = "#{prefix} #{item.full_title}"
         puts truncate(line)
       end
     end
@@ -84,7 +83,6 @@ module Bulletin
       end.flatten.reject(&:nil?)
       all_uris = Item.all.map(&:uri)
       items.reject { |i| all_uris.include?(i.uri) }.each(&:save)
-      evolve!
     end
 
     def set(option, value)
@@ -115,67 +113,6 @@ module Bulletin
     end
 
     private
-    def evolve!
-      # initial population
-      items = Bulletin::Item.all
-      population = (0...100).map { items.sort_by { rand } }
-      scores = Array.new(100)
-      
-      100.times do
-        # evaluate
-        scores = population.map { |items| evaluate(items) }
-
-        # select
-        new_population = (0...100).map do
-          left, right = rand(100), rand(100)
-          winner = scores[left] > scores[right] ? left : right
-          population[winner]
-        end
-        population = new_population
-        
-        # variation
-        population.map! do |pop|
-          if rand < 0.2
-            (rand(pop.size) / 10).times do
-              item = pop.delete_at(rand(pop.size))
-              pop.insert(rand(pop.size), item)
-            end
-            pop
-          else
-            pop
-          end
-        end
-      end
-
-      # get the best for last generation
-      best_index = population.map { |items| evaluate(items) }.
-        each_with_index.
-        max[1]
-      winner = population[best_index]
-      winner.each_with_index do |item, index|
-        item.rank = index + 1
-        item.save
-      end
-    end
-
-    def evaluate(items)
-      @likes ||= begin
-        hosts = {}
-        Bulletin::Item.all(:like => true).each do |i|
-          hosts[i.host] ||= 0
-          hosts[i.host] = hosts[i.host] + 1
-        end
-        hosts
-      end
-      score = 0
-      items.reverse.each_with_index do |item, index|
-        if @likes[item.host]
-          score += (@likes[item.host] * index)
-        end
-      end
-      score
-    end
-
     def truncate(str)
       str.size <= @term_width ?
         str :
@@ -226,7 +163,7 @@ module Bulletin
     end
 
     def full_title
-      code = (rand > 0.9) ? 'S'.colorize(:light_red) : '*'
+      code = self.like ? 'S'.colorize(:light_red) : '*'
       "#{host.colorize(:light_green)} #{code} #{title}"
     end
 

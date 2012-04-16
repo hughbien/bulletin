@@ -52,7 +52,7 @@ Show all links without paginating with `--all`:
 You can show saved links with `--saved` or undo it with `--unsave`:
 
     % bulletin --saved
-    % bulletin --unsave s20
+    % bulletin --unsave 20
 
 TODO
 ====
