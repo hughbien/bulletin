@@ -8,6 +8,7 @@ require 'data_mapper'
 require 'dm-types'
 require 'cgi'
 require 'nokogiri'
+require 'colorize'
 
 module Bulletin
   VERSION = '0.0.1'
@@ -35,10 +36,11 @@ module Bulletin
       items.each do |item|
         num = item.rank
         width = num_width - num.to_s.size
-        line = "#{' ' * width}#{num}. #{item.full_title}"
+        prefix = "#{' ' * width}#{num}".colorize(:light_blue)
+        line = "#{prefix} #{item.full_title}"
         puts truncate(line)
       end
-      puts (' ' * num_width) + "  (#{items.first.rank}-#{items.last.rank} of #{total})"
+      # puts (' ' * num_width) + " #{items.first.rank}-#{items.last.rank} of #{total}".colorize(:light_blue)
     end
 
     def open_item(id)
@@ -224,11 +226,17 @@ module Bulletin
     end
 
     def full_title
-      "#{title} (#{uri.host})"
+      code = (rand > 0.9) ? 'S'.colorize(:light_red) : '*'
+      "#{host.colorize(:light_green)} #{code} #{title}"
     end
 
     def host
-      uri.host
+      cleaned = uri.host.sub(/www\./, '').sub(/\.[^.]+$/, '')[0..13]
+      if cleaned.length < 14
+        "#{cleaned}#{' '*(14-cleaned.length)}"
+      else
+        cleaned
+      end
     end
   end
 

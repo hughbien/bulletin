@@ -1,8 +1,7 @@
 Description
 ===========
 
-Personalized news client.  Aggregates news from RSS feeds and ranks according
-to your tastes.
+RSS reader with support for Hacker News and Reddit.
 
 Installation
 ============
@@ -16,7 +15,13 @@ Open up `~/.bulletinrc` to configure it:
     set :expire,   10 # days
 
     feed 'http://feed-url/rss.xml'
-    feed 'http://second-feed/rss.xml'
+    feed 'http://second-feed/rss.xml', :limit => 10
+
+    hacker_news
+    hacker_news :ask, :limit => 10
+
+    reddit
+    reddit :gaming, :limit => 10
 
 Usage
 =====
@@ -29,27 +34,31 @@ Now just start browsing with:
 
     % bulletin
 
-Use the `--page` option to view other pages.  Use `--open` to open it in a
-browser.  Use `--like` to like a link which will help with ranking according to
-your tastes.
+Use the `--page` option to view other pages.  Use `--read` to read a link and
+`--open` or `--open-local` to read it in a browser.  Use `--save` to save it.
 
     % bulletin --page 2
-    % bulletin --open 45
-    % bulletin --like 45
+    % bulletin --read 45
+    % bulletin --save 45
 
-You can like a link and open it simultaneously:
+You can save a link and read it simultaneously:
 
-    % bulletin --like --open 45
+    % bulletin --save --read 45
 
-You can show previous likes with `--likes` or undo it with `--unlike`:
+Show all links without paginating with `--all`:
 
-    % bulletin --likes
-    % bulletin --unlike l20
+    % bulletin --all
+
+You can show saved links with `--saved` or undo it with `--unsave`:
+
+    % bulletin --saved
+    % bulletin --unsave s20
 
 TODO
 ====
 
 * handle expiration
+* add support for atom feeds
 * add support for hacker news and reddit
 * add support for configuring browser, per_page, and expire
 
