@@ -48,29 +48,29 @@ module Bulletin
       `#{options[:browser] || 'firefox'} #{item.uri}` if item
     end
 
-    def like(id)
+    def save(id)
       item = Item.first(:rank => id)
       if item
-        item.like = true
+        item.is_saved = true
         item.save
       end
     end
 
-    def unlike(id)
+    def unsave(id)
       return if id !~ /^\d+$/
-      item = Item.first(:like => true, :rank => id)
+      item = Item.first(:is_saved => true, :rank => id)
       if item
-        item.like = false
+        item.is_saved = false
         item.save
       end
     end
 
-    def likes
-      items = Item.all(:like => true, :order => [:rank])
-      num_width = items.size.to_s.size
+    def saved
+      items = Item.all(:is_saved => true, :order => [:rank])
+      num_width = items.last.rank.to_s.size
       items.each do |item|
         num = item.rank
-        width = num_width - num.to_s.size
+        width = [num_width - num.to_s.size, 0].max
         prefix = "#{' ' * width}#{num}".colorize(:light_blue)
         line = "#{prefix} #{item.full_title}"
         puts truncate(line)
@@ -82,7 +82,12 @@ module Bulletin
         fetch_feed(feed)
       end.flatten.reject(&:nil?)
       all_uris = Item.all.map(&:uri)
-      items.reject { |i| all_uris.include?(i.uri) }.each(&:save)
+      items = items.reject { |i| all_uris.include?(i.uri) }.
+        sort_by(&:published_at)
+      items.each_with_index do |item, index|
+        item.rank = index + 1
+        item.save
+      end
     end
 
     def set(option, value)
@@ -152,18 +157,18 @@ module Bulletin
     property :published_at, DateTime
     property :title, String, :length => 255
     property :uri, URI
-    property :like, Boolean, :default => false
+    property :is_saved, Boolean, :default => false
     property :rank, Integer, :default => 0, :key => true
 
     def self.from_rss(rss, item)
       return nil if item.link.nil?
-      Item.new(:published_at => item.date,
+      Item.new(:published_at => (item.date || Time.now),
                :title => item.title.to_s.strip,
                :uri => item.link)
     end
 
     def full_title
-      code = self.like ? 'S'.colorize(:light_red) : '*'
+      code = self.is_saved ? 'S'.colorize(:light_red) : '*'
       "#{host.colorize(:light_green)} #{code} #{title}"
     end
 

@@ -9,12 +9,12 @@ ARGV.options do |o|
   o.set_summary_indent('  ')
   o.banner =    "Usage: #{File.basename($0)} [OPTIONS]"
   o.define_head 'Personalized news client'
-  o.on('-l', '--like ID', 'like link') { |id| bulletin.like(id); exit }
-  o.on('-L', '--likes', 'show all likes') { |id| bulletin.likes; exit }
   o.on('-o', '--open ID', 'open link') { |id| bulletin.open_item(id); exit }
   o.on('-p', '--page PAGE', 'show page') { |page| bulletin.run(page); exit }
   o.on('-r', '--refresh', 'refresh and ranks stories') { bulletin.refresh; exit }
-  o.on('-u', '--unlike ID', 'undo like') { |id| bulletin.unlike(id); exit }
+  o.on('-s', '--save ID', 'save link') { |id| bulletin.save(id); exit }
+  o.on('-S', '--saved', 'show all saved') { |id| bulletin.saved; exit }
+  o.on('-u', '--unsave ID', 'undo save') { |id| bulletin.unsave(id); exit }
   o.on('-v', '--version', 'show version') do
     puts "bulletin version #{Bulletin::VERSION}"
     exit
