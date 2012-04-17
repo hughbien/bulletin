@@ -28,9 +28,13 @@ module Bulletin
       total = Item.count
       per_page = options[:per_page] || (@term_height - 2)
       page = page.to_i - 1
-      items = Item.all(:order => [:rank],
-                       :rank.gt => (per_page * page),
-                       :rank.lte => (per_page * (page + 1)))
+      options = {:order => [:rank]}
+      if page > -1
+        options.merge(
+          :rank.gt => (per_page * page),
+          :rank.lte => (per_page * (page + 1)))
+      end
+      items = Item.all(options)
       return if items.empty?
       puts table(items)
     end

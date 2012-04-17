@@ -57,6 +57,7 @@ You can show saved links with `--saved` or undo it with `--unsave`:
 TODO
 ====
 
+* add single read
 * handle expiration
 * add support for atom feeds
 * add support for hacker news and reddit
