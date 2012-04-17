@@ -21,26 +21,18 @@ module Bulletin
       @options = {}
       @feeds = []
       @term_width = `tput cols`.to_i
+      @term_height = `tput lines`.to_i
     end
 
     def run(page=1)
       total = Item.count
-      per_page = options[:per_page] || 20
+      per_page = options[:per_page] || (@term_height - 2)
       page = page.to_i - 1
       items = Item.all(:order => [:rank],
                        :rank.gt => (per_page * page),
                        :rank.lte => (per_page * (page + 1)))
       return if items.empty?
-
-      num_width = items.last.rank.to_s.size
-      items.each do |item|
-        num = item.rank
-        width = num_width - num.to_s.size
-        prefix = "#{' ' * width}#{num}".colorize(:light_blue)
-        line = "#{prefix} #{item.full_title}"
-        puts truncate(line)
-      end
-      # puts (' ' * num_width) + " #{items.first.rank}-#{items.last.rank} of #{total}".colorize(:light_blue)
+      puts table(items)
     end
 
     def open_item(id)
@@ -68,13 +60,7 @@ module Bulletin
     def saved
       items = Item.all(:is_saved => true, :order => [:rank])
       num_width = items.last.rank.to_s.size
-      items.each do |item|
-        num = item.rank
-        width = [num_width - num.to_s.size, 0].max
-        prefix = "#{' ' * width}#{num}".colorize(:light_blue)
-        line = "#{prefix} #{item.full_title}"
-        puts truncate(line)
-      end
+      puts table(items)
     end
 
     def refresh
@@ -139,6 +125,26 @@ module Bulletin
       end.reject(&:nil?)
     end
 
+    def table(items)
+      id_width = items.map { |i| i.rank.to_s.size }.max
+      host_width = items.map { |i| i.host.to_s.size }.max
+      items.map do |item|
+        id_pad = ' ' * (id_width - item.rank.to_s.size)
+        host_pad = ' ' * (host_width - item.host.to_s.size)
+        flag = item.is_saved ? 'S' : '*'
+        id = "#{id_pad}#{item.rank}"
+        host = "#{item.host}#{host_pad}"
+        prefix_width = id_width + host_width + 4
+        title = if (prefix_width + item.title.size) > @term_width
+          "#{item.title[0..@term_width-(4 + prefix_width)]}..."
+        else
+          item.title
+        end
+        flag = flag == 'S' ? flag.colorize(:light_red) : flag
+        "#{id.colorize(:light_blue)} #{host.colorize(:light_green)} #{flag} #{title}"
+      end.join("\n")
+    end
+
     def self.setup_db(production = true)
       DataMapper.setup(:default, production ?
         "sqlite://#{File.expand_path('~/.bulletindb')}" :
@@ -173,12 +179,7 @@ module Bulletin
     end
 
     def host
-      cleaned = uri.host.sub(/www\./, '').sub(/\.[^.]+$/, '')[0..13]
-      if cleaned.length < 14
-        "#{cleaned}#{' '*(14-cleaned.length)}"
-      else
-        cleaned
-      end
+      uri.host.sub(/www\./, '').sub(/\.[^.]+$/, '')[0..14]
     end
   end
 

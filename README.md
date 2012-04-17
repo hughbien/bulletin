@@ -58,7 +58,6 @@ TODO
 ====
 
 * handle expiration
-* cleaner output (tput col/lines, shorten uri output)
 * add support for atom feeds
 * add support for hacker news and reddit
 * add support for configuring browser, per_page, and expire
