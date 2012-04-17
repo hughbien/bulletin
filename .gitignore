@@ -3,3 +3,4 @@
 Gemfile.lock
 *.sqlite3
 .tags
+coverage

@@ -30,7 +30,7 @@ module Bulletin
       page = page.to_i - 1
       options = {:order => [:rank]}
       if page > -1
-        options.merge(
+        options.merge!(
           :rank.gt => (per_page * page),
           :rank.lte => (per_page * (page + 1)))
       end

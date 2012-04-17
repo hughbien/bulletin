@@ -6,6 +6,11 @@ task :test do
   print `ruby *_test.rb`
 end
 
+task :coverage do
+  ENV['COVERAGE'] = 'true'
+  print `ruby *_test.rb`
+end
+
 task :build do
   `gem build bulletin.gemspec`
 end

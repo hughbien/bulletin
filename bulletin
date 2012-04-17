@@ -11,8 +11,10 @@ ARGV.options do |o|
   o.define_head 'Personalized news client'
   o.on('-a', '--all', 'show all links') { bulletin.run(0); exit }
   o.on('-o', '--open ID', 'open link') { |id| bulletin.open_item(id); exit }
+  o.on('-O', '--open-local ID', 'open link locally') { |id| bulletin.open_local(id); exit }
   o.on('-p', '--page PAGE', 'show page') { |page| bulletin.run(page); exit }
-  o.on('-r', '--refresh', 'refresh and ranks stories') { bulletin.refresh; exit }
+  o.on('-r', '--read ID', 'read a link') { |id| bulletin.read(id); exit }
+  o.on('-R', '--refresh', 'refresh and ranks stories') { bulletin.refresh; exit }
   o.on('-s', '--save ID', 'save link') { |id| bulletin.save(id); exit }
   o.on('-S', '--saved', 'show all saved') { |id| bulletin.saved; exit }
   o.on('-u', '--unsave ID', 'undo save') { |id| bulletin.unsave(id); exit }

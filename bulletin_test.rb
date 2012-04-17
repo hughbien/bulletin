@@ -1,3 +1,9 @@
+if ENV['COVERAGE']
+  require 'simplecov'
+  SimpleCov.start
+  SimpleCov.command_name 'Unit Tests'
+end
+
 require File.join(File.dirname(__FILE__), 'bulletin')
 require 'minitest/autorun'
 

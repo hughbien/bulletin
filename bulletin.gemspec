@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'nokogiri'
   s.add_dependency 'colorize'
   s.add_development_dependency 'minitest'
+  s.add_development_dependency 'simplecov'
  
   s.files        = Dir.glob('*.{rb,.md}') + %w(bulletin)
   s.bindir       = '.'
