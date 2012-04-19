@@ -5,6 +5,7 @@ require 'dm-types'
 require 'colorize'
 require 'feedzirra'
 require 'nokogiri'
+require 'date'
 
 module Bulletin
   VERSION = '0.0.1'
@@ -83,9 +84,13 @@ module Bulletin
           items += rss.entries.map { |entry| Item.from_rss(rss, entry) }
         end
       end
+      expired = Date.today - options[:expire]
       all_uris = Item.all.map(&:uri)
-      items = items.reject { |i| all_uris.include?(i.uri) }.
-        sort_by(&:published_at).reverse
+      items.reject! { |i| all_uris.include?(i.uri) || i.published_at < expired }
+      Item.all(:published_at.lt => (Date.today - options[:expire])).destroy
+      items = items + Item.all
+      items.sort_by!(&:published_at)
+      items.reverse!
       items.each_with_index do |item, index|
         item.rank = index + 1
         item.save

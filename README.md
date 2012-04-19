@@ -53,7 +53,6 @@ You can show saved links with `--saved` or undo it with `--unsave`:
 TODO
 ====
 
-* handle expiration
 * add filtering
 * add hacker news and reddit with good merging (?)
 * add anchor/links gotos in post reading
