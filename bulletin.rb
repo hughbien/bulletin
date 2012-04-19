@@ -160,7 +160,28 @@ module Bulletin
       node.css(swaps.keys.join(',')).each { |n| n.replace(swaps[n.name]) }
       node.css(blocks.join(',')).each { |n| n.after("\n\n") }
       node.css(lists.join(',')).each { |n| n.after("\n").before("* ") }
-      node.text.gsub(/(^ +)|( +$)/,'').gsub(/\n\n+/, "\n\n").strip
+      text = node.text.split(/\n\n+/).map do |paragraph|
+        paragraph.split(/\n/).map do |line|
+          wrap_line(line.strip)
+        end.join("\n")
+      end.join("\n\n").gsub(/\n\n+/, "\n\n").strip
+    end
+
+    def wrap_line(line)
+      buffer = []
+      line.split(/\s+/).each do |word|
+        if buffer.empty? || (buffer.last.length + word.length + 1) > @term_width
+          if buffer.first && buffer.first =~ /^\*/
+            buffer << "  #{word}"
+          else
+            buffer << word
+          end
+        else
+          last = buffer.pop
+          buffer << "#{last} #{word}"
+        end
+      end
+      buffer.join("\n")
     end
 
     def self.setup_db(production = true)
