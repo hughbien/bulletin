@@ -21,6 +21,10 @@ module Bulletin
       @term_height = `tput lines`.to_i
     end
 
+    def filter(site)
+      @filter = site
+    end
+
     def run(page=1)
       total = Item.count
       per_page = options[:per_page]
@@ -30,6 +34,11 @@ module Bulletin
         options.merge!(
           :rank.gt => (per_page * page),
           :rank.lte => (per_page * (page + 1)))
+      end
+      if @filter
+        options.merge!(
+          :uri.like => "%#{@filter}%"
+        )
       end
       items = Item.all(options)
       return if items.empty?
