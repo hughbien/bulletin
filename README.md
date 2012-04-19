@@ -55,6 +55,7 @@ TODO
 
 * add host attribute (for filtering)
 * add hacker news and reddit with good merging (?)
+* add limit options
 * add anchor/links gotos in post reading
 
 License
