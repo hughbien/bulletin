@@ -47,17 +47,8 @@ class BulletinTest < MiniTest::Unit::TestCase
     refute(@bulletin.send(:production?))
   end
 
-  def test_fetch_feed
-    items = @bulletin.send(:fetch_feed, sample_uri)
-    assert_equal('Star City', items[0].title)
-    assert_equal(
-      'http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp',
-      items[0].uri.to_s)
-  end
-
   private
   def sample_uri
-    File.join(File.expand_path(File.dirname(__FILE__)),
-              'sample.xml')
+    File.join(File.expand_path(File.dirname(__FILE__)), 'sample.xml')
   end
 end

@@ -1,14 +1,9 @@
 require 'rubygems'
 require 'uri'
-require 'open-uri'
-require 'rss/1.0'
-require 'rss/2.0'
-require 'ostruct'
 require 'data_mapper'
 require 'dm-types'
-require 'cgi'
-require 'nokogiri'
 require 'colorize'
+require 'feedzirra'
 
 module Bulletin
   VERSION = '0.0.1'
@@ -39,6 +34,17 @@ module Bulletin
       puts table(items)
     end
 
+    def read(id)
+      item = Item.first(:rank => id)
+      print "#{item.title}".colorize(:light_cyan)
+      puts (item.is_saved ? ' (S)'.colorize(:light_red) : '')
+      puts "#{item.uri.host}".colorize(:light_green)
+      puts "#{item.published_at.strftime('%m/%d/%Y')}".
+           colorize(:light_blue)
+      puts "----------".colorize(:light_magenta)
+      puts item.body if item
+    end
+
     def open_item(id)
       item = Item.first(:rank => id)
       `#{options[:browser] || 'firefox'} #{item.uri}` if item
@@ -63,17 +69,23 @@ module Bulletin
 
     def saved
       items = Item.all(:is_saved => true, :order => [:rank])
+      return if items.empty?
       num_width = items.last.rank.to_s.size
       puts table(items)
     end
 
     def refresh
-      items = @feeds.map do |feed|
-        fetch_feed(feed)
-      end.flatten.reject(&:nil?)
+      items = []
+      Feedzirra::Feed.fetch_and_parse(@feeds).each do |uri, rss|
+        if rss.is_a?(Fixnum)
+          puts "Unable to fetch #{uri}"
+        else
+          items += rss.entries.map { |entry| Item.from_rss(rss, entry) }
+        end
+      end
       all_uris = Item.all.map(&:uri)
       items = items.reject { |i| all_uris.include?(i.uri) }.
-        sort_by(&:published_at)
+        sort_by(&:published_at).reverse
       items.each_with_index do |item, index|
         item.rank = index + 1
         item.save
@@ -118,17 +130,6 @@ module Bulletin
       !!@production
     end
 
-    def fetch_feed(uri)
-      rss = RSS::Parser.parse(open(uri) { |io| io.read }, false)
-      if rss.nil?
-        puts "Can't retrieve #{uri}"
-        return
-      end
-      rss.items.map do |item|
-        Item.from_rss(rss, item)
-      end.reject(&:nil?)
-    end
-
     def table(items)
       id_width = items.map { |i| i.rank.to_s.size }.max
       host_width = items.map { |i| i.host.to_s.size }.max
@@ -169,12 +170,14 @@ module Bulletin
     property :uri, URI
     property :is_saved, Boolean, :default => false
     property :rank, Integer, :default => 0, :key => true
+    property :body, Text
 
-    def self.from_rss(rss, item)
-      return nil if item.link.nil?
-      Item.new(:published_at => (item.date || Time.now),
-               :title => item.title.to_s.strip,
-               :uri => item.link)
+    def self.from_rss(rss, entry)
+      return nil if entry.url.nil?
+      Item.new(:published_at => (entry.published || Time.now),
+               :title => entry.title.to_s.strip,
+               :uri => entry.url,
+               :body => entry.content)
     end
 
     def full_title
