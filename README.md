@@ -59,8 +59,10 @@ TODO
 
 * add single read
 * handle expiration
-* add support for hacker news and reddit
-* add support for configuring browser, per_page, and expire
+* add filtering
+* add hacker news and reddit with good merging (?)
+* add configuring browser, per_page, and expire
+* add anchor/links gotos in post reading
 
 License
 =======

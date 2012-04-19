@@ -4,6 +4,7 @@ require 'data_mapper'
 require 'dm-types'
 require 'colorize'
 require 'feedzirra'
+require 'nokogiri'
 
 module Bulletin
   VERSION = '0.0.1'
@@ -42,7 +43,7 @@ module Bulletin
       puts "#{item.published_at.strftime('%m/%d/%Y')}".
            colorize(:light_blue)
       puts "----------".colorize(:light_magenta)
-      puts item.body if item
+      puts html_to_text(item.body)
     end
 
     def open_item(id)
@@ -148,6 +149,18 @@ module Bulletin
         flag = flag == 'S' ? flag.colorize(:light_red) : flag
         "#{id.colorize(:light_blue)} #{host.colorize(:light_green)} #{flag} #{title}"
       end.join("\n")
+    end
+
+    def html_to_text(html)
+      blocks = %w(p div ul ol h1 h2 h3 h4 h5 h6)
+      lists = %w(li)
+      swaps = {'br'=>"\n", 'hr'=>"\n#{'-'*@term_width}\n"}
+      node = Nokogiri::HTML(html)
+      node.xpath('.//text()').each { |t| t.content = t.text.gsub(/\s+/,' ') }
+      node.css(swaps.keys.join(',')).each { |n| n.replace(swaps[n.name]) }
+      node.css(blocks.join(',')).each { |n| n.after("\n\n") }
+      node.css(lists.join(',')).each { |n| n.after("\n").before("* ") }
+      node.text.gsub(/(^ +)|( +$)/,'').gsub(/\n\n+/, "\n\n").strip
     end
 
     def self.setup_db(production = true)
