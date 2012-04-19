@@ -41,10 +41,6 @@ Use the `--page` option to view other pages.  Use `--read` to read a link and
     % bulletin --read 45
     % bulletin --save 45
 
-You can save a link and read it simultaneously:
-
-    % bulletin --save --read 45
-
 Show all links without paginating with `--all`:
 
     % bulletin --all
@@ -57,11 +53,9 @@ You can show saved links with `--saved` or undo it with `--unsave`:
 TODO
 ====
 
-* add single read
 * handle expiration
 * add filtering
 * add hacker news and reddit with good merging (?)
-* add configuring browser, per_page, and expire
 * add anchor/links gotos in post reading
 
 License

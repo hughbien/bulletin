@@ -22,7 +22,7 @@ module Bulletin
 
     def run(page=1)
       total = Item.count
-      per_page = options[:per_page] || (@term_height - 2)
+      per_page = options[:per_page]
       page = page.to_i - 1
       options = {:order => [:rank]}
       if page > -1
@@ -37,18 +37,17 @@ module Bulletin
 
     def read(id)
       item = Item.first(:rank => id)
-      print "#{item.title}".colorize(:light_cyan)
+      print wrap_line(item.title).colorize(:light_cyan)
       puts (item.is_saved ? ' (S)'.colorize(:light_red) : '')
-      puts "#{item.uri.host}".colorize(:light_green)
-      puts "#{item.published_at.strftime('%m/%d/%Y')}".
-           colorize(:light_blue)
-      puts "----------".colorize(:light_magenta)
+      puts item.uri.host.to_s.colorize(:light_green)
+      puts item.published_at.strftime('%m/%d/%Y').colorize(:light_blue)
+      puts ('-' * @term_width).colorize(:light_magenta)
       puts html_to_text(item.body)
     end
 
     def open_item(id)
       item = Item.first(:rank => id)
-      `#{options[:browser] || 'firefox'} #{item.uri}` if item
+      `#{options[:browser]} #{item.uri}` if item
     end
 
     def save(id)
@@ -117,6 +116,9 @@ module Bulletin
           define_method(:social) { |site, *args| app.social(site, *args) }
         end
         load(config, true)
+        @options[:browser] ||= 'firefox'
+        @options[:per_page] ||= (@term_height - 2)
+        @options[:expire] ||= 30
       end
     end
 
@@ -154,7 +156,7 @@ module Bulletin
     def html_to_text(html)
       blocks = %w(p div ul ol h1 h2 h3 h4 h5 h6)
       lists = %w(li)
-      swaps = {'br'=>"\n", 'hr'=>"\n#{'-'*@term_width}\n"}
+      swaps = {'br'=>"\n", 'hr'=>"\n"}
       node = Nokogiri::HTML(html)
       node.xpath('.//text()').each { |t| t.content = t.text.gsub(/\s+/,' ') }
       node.css(swaps.keys.join(',')).each { |n| n.replace(swaps[n.name]) }
