@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.email       = ['hugh@hughbien.com']
   s.homepage    = 'https://github.com/hughbien/bulletin'
   s.summary     = 'Command line RSS reader'
-  s.description = 'Command line RSS reader with Hacker News and Reddit support.'
+  s.description = 'Command line RSS reader'
  
   s.required_rubygems_version = '>= 1.3.6'
   s.add_dependency 'dm-sqlite-adapter'

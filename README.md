@@ -1,7 +1,7 @@
 Description
 ===========
 
-RSS reader with support for Hacker News and Reddit.
+Command line RSS reader.
 
 Installation
 ============
@@ -15,13 +15,7 @@ Open up `~/.bulletinrc` to configure it:
     set :expire,   10 # days
 
     feed 'http://feed-url/rss.xml'
-    feed 'http://second-feed/rss.xml', :limit => 10
-
-    hacker_news
-    hacker_news :ask, :limit => 10
-
-    reddit
-    reddit :gaming, :limit => 10
+    feed 'http://second-feed/rss.xml'
 
 Usage
 =====
@@ -54,7 +48,6 @@ TODO
 ====
 
 * add host attribute (for filtering)
-* add hacker news and reddit with good merging (?)
 * add limit options
 * add anchor/links gotos in post reading
 
