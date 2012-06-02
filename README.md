@@ -10,9 +10,9 @@ Installation
 
 Open up `~/.bulletinrc` to configure it:
 
-    set :browser,  'firefox'
-    set :per_page, 80
-    set :expire,   10 # days
+    set :browser,  'firefox' # defaults to firefox
+    set :per_page, 80        # defaults to terminal height
+    set :expire,   10        # defaults to 30 days
 
     feed 'http://feed-url/rss.xml'
     feed 'http://second-feed/rss.xml'
@@ -29,7 +29,7 @@ Now just start browsing with:
     % bulletin
 
 Use the `--page` option to view other pages.  Use `--read` to read a link and
-`--open` or `--open-local` to read it in a browser.  Use `--save` to save it.
+`--open` to read it in a browser.  Use `--save` to save it.
 
     % bulletin --page 2
     % bulletin --read 45
@@ -43,13 +43,6 @@ You can show saved links with `--saved` or undo it with `--unsave`:
 
     % bulletin --saved
     % bulletin --unsave 20
-
-TODO
-====
-
-* add host attribute (for filtering)
-* add limit options
-* add anchor/links gotos in post reading
 
 License
 =======

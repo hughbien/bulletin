@@ -49,9 +49,9 @@ module Bulletin
       item = Item.first(:rank => id)
       print wrap_line(item.title).colorize(:light_cyan)
       puts (item.is_saved ? ' (S)'.colorize(:light_red) : '')
-      puts item.uri.host.to_s.colorize(:light_green)
-      puts item.published_at.strftime('%m/%d/%Y').colorize(:light_blue)
-      puts ('-' * @term_width).colorize(:light_magenta)
+      print item.uri.host.to_s.colorize(:light_green) + ' on '
+      puts item.published_at.strftime('%m/%d/%Y')
+      puts ('-----').colorize(:light_red)
       puts html_to_text(item.body)
     end
 
@@ -114,12 +114,6 @@ module Bulletin
       @feeds << uri
     end
 
-    def social(site, *args)
-      if site == :hackernews
-        @feeds << 'http://news.ycombinator.com/rss'
-      end
-    end
-
     def load_config
       config = File.join(ENV['HOME'], '.bulletinrc')
       if File.exists?(config)
@@ -127,7 +121,6 @@ module Bulletin
         Object.class_eval do
           define_method(:set) { |opt, val| app.set(opt, val) }
           define_method(:feed) { |uri| app.feed(uri) }
-          define_method(:social) { |site, *args| app.social(site, *args) }
         end
         load(config, true)
         @options[:browser] ||= 'firefox'
@@ -185,8 +178,9 @@ module Bulletin
 
     def wrap_line(line)
       buffer = []
+      width = @term_width - 2
       line.split(/\s+/).each do |word|
-        if buffer.empty? || (buffer.last.length + word.length + 1) > @term_width
+        if buffer.empty? || (buffer.last.length + word.length + 1) > width
           if buffer.first && buffer.first =~ /^\*/
             buffer << "  #{word}"
           else
