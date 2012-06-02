@@ -101,8 +101,7 @@ module Bulletin
       items.sort_by!(&:published_at)
       items.reverse!
       items.each_with_index do |item, index|
-        item.rank = index + 1
-        item.save
+        item.update(:rank => index + 1)
       end
     end
 
