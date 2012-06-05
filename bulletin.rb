@@ -8,7 +8,7 @@ require 'nokogiri'
 require 'date'
 
 module Bulletin
-  VERSION = '0.0.4'
+  VERSION = '0.0.5'
 
   class App
     attr_reader :options, :feeds
