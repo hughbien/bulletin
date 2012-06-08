@@ -9,6 +9,8 @@ require 'date'
 
 module Bulletin
   VERSION = '0.0.5'
+  BULLETINRC = ENV['BULLETINRC'] || "#{ENV['HOME']}/.bulletinrc"
+  EDITOR = ENV['EDITOR'] || 'vi'
 
   class App
     attr_reader :options, :feeds
@@ -19,6 +21,10 @@ module Bulletin
       @feeds = []
       @term_width = `tput cols`.to_i
       @term_height = `tput lines`.to_i
+    end
+
+    def edit
+      `#{EDITOR} #{BULLETINRC} < \`tty\` > \`tty\``
     end
 
     def filter(site)
@@ -115,14 +121,13 @@ module Bulletin
     end
 
     def load_config
-      config = File.join(ENV['HOME'], '.bulletinrc')
-      if File.exists?(config)
+      if File.exists?(BULLETINRC)
         app = self
         Object.class_eval do
           define_method(:set) { |opt, val| app.set(opt, val) }
           define_method(:feed) { |uri| app.feed(uri) }
         end
-        load(config, true)
+        load(BULLETINRC, true)
         @options[:browser] ||= 'firefox'
         @options[:per_page] ||= (@term_height - 2)
         @options[:expire] ||= 30

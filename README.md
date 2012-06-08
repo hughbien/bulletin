@@ -44,6 +44,11 @@ You can show saved links with `--saved` or undo it with `--unsave`:
     % bulletin --saved
     % bulletin --unsave 20
 
+TODO
+====
+
+* zsh autocompletion
+
 License
 =======
 
