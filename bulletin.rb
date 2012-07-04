@@ -38,8 +38,8 @@ module Bulletin
       options = {:order => [:rank]}
       if page > -1
         options.merge!(
-          :rank.gt => (per_page * page),
-          :rank.lte => (per_page * (page + 1)))
+          :offset => per_page * page,
+          :limit  => per_page)
       end
       if @filter
         options.merge!(
@@ -226,7 +226,7 @@ module Bulletin
       Item.new(:published_at => (entry.published || Time.now),
                :title => entry.title.to_s.strip,
                :uri => entry.url,
-               :body => entry.content)
+               :body => entry.content || entry.summary)
     end
 
     def full_title

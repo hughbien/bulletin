@@ -16,6 +16,7 @@ class BulletinTest < MiniTest::Unit::TestCase
   end
 
   def test_refresh
+    @bulletin.options[:expire] = 30
     assert_equal(0, Bulletin::Item.count)
     @bulletin.feed sample_uri
     @bulletin.refresh
