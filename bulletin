@@ -4,25 +4,26 @@ require File.expand_path('bulletin', File.dirname(__FILE__))
 
 ARGV.options do |o|
   Bulletin::App.setup_db
+  action = ['run', 1]
   bulletin = Bulletin::App.new(true)
   bulletin.load_config
   o.set_summary_indent('  ')
   o.banner =    "Usage: #{File.basename($0)} [OPTIONS]"
-  o.on('-a', '--all', 'show all links') { bulletin.run(0); exit }
-  o.on('-e', '--edit', 'edit config') { bulletin.edit; exit }
+  o.on('-a', '--all', 'show all links') { action = ['run', 0] }
+  o.on('-e', '--edit', 'edit config') { action = ['edit'] }
   o.on('-f', '--filter uri', 'filter news') { |f| bulletin.filter(f) }
-  o.on('-o', '--open id', 'open link') { |id| bulletin.open_item(id); exit }
-  o.on('-p', '--page page', 'show page') { |page| bulletin.run(page); exit }
-  o.on('-r', '--read id', 'read a link') { |id| bulletin.read(id); exit }
-  o.on('-R', '--refresh', 'refresh stories') { bulletin.refresh; exit }
-  o.on('-s', '--save id', 'save link') { |id| bulletin.save(id); exit }
-  o.on('-S', '--saved', 'show all saved') { |id| bulletin.saved; exit }
-  o.on('-u', '--unsave id', 'undo save') { |id| bulletin.unsave(id); exit }
+  o.on('-o', '--open id', 'open link') { |id| action = ['open_item', id] }
+  o.on('-p', '--page page', 'show page') { |page| action = ['run', page] }
+  o.on('-r', '--read id', 'read a link') { |id| action = ['read', id] }
+  o.on('-R', '--refresh', 'refresh stories') { action = ['refresh'] }
+  o.on('-s', '--save id', 'save link') { |id| action = ['save', id] }
+  o.on('-S', '--saved', 'show all saved') { action = ['saved'] }
+  o.on('-u', '--unsave id', 'undo save') { |id| action = ['unsave', id] }
   o.on('-v', '--version', 'show version') do
     puts "bulletin version #{Bulletin::VERSION}"
     exit
   end
   o.on('-h', '--help', 'show this help message') { puts o; exit }
   o.parse!
-  ARGV.empty? ? bulletin.run : puts(o)
+  ARGV.empty? ? bulletin.send(*action) : puts(o)
 end
