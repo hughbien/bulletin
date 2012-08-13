@@ -3,13 +3,12 @@ require 'optparse'
 require File.expand_path('bulletin', File.dirname(__FILE__))
 
 ARGV.options do |o|
-  Bulletin::App.setup_db
   action = ['run', 1]
   bulletin = Bulletin::App.new(true)
-  bulletin.load_config
   o.set_summary_indent('  ')
   o.banner =    "Usage: #{File.basename($0)} [OPTIONS]"
   o.on('-a', '--all', 'show all links') { action = ['run', 0] }
+  o.on('-c', '--configure path', 'set config path') { |p| bulletin.configure(p) }
   o.on('-e', '--edit', 'edit config') { action = ['edit'] }
   o.on('-f', '--filter uri', 'filter news') { |f| bulletin.filter(f) }
   o.on('-o', '--open id', 'open link') { |id| action = ['open_item', id] }
@@ -25,5 +24,11 @@ ARGV.options do |o|
   end
   o.on('-h', '--help', 'show this help message') { puts o; exit }
   o.parse!
-  ARGV.empty? ? bulletin.send(*action) : puts(o)
+  begin
+    bulletin.setup_db
+    bulletin.load_config
+    ARGV.empty? ? bulletin.send(*action) : puts(o)
+  rescue Exception => e
+    puts e
+  end
 end

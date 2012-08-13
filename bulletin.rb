@@ -9,7 +9,6 @@ require 'date'
 
 module Bulletin
   VERSION = '0.0.5'
-  BULLETINRC = ENV['BULLETINRC'] || "#{ENV['HOME']}/.bulletinrc"
   EDITOR = ENV['EDITOR'] || 'vi'
 
   class App
@@ -21,14 +20,20 @@ module Bulletin
       @feeds = []
       @term_width = `tput cols`.to_i
       @term_height = `tput lines`.to_i
+      configure('~/.bulletin')
     end
 
     def edit
-      `#{EDITOR} #{BULLETINRC} < \`tty\` > \`tty\``
+      `#{EDITOR} #{@bulletinrc} < \`tty\` > \`tty\``
     end
 
     def filter(site)
       @filter = site
+    end
+
+    def configure(path)
+      @bulletinrc = File.expand_path("#{path}rc")
+      @bulletindb = File.expand_path("#{path}db")
     end
 
     def run(page=1)
@@ -120,18 +125,26 @@ module Bulletin
       @feeds << uri
     end
 
-    def load_config
-      if File.exists?(BULLETINRC)
-        app = self
-        Object.class_eval do
-          define_method(:set) { |opt, val| app.set(opt, val) }
-          define_method(:feed) { |uri| app.feed(uri) }
-        end
-        load(BULLETINRC, true)
-        @options[:browser] ||= 'firefox'
-        @options[:per_page] ||= (@term_height - 2)
-        @options[:expire] ||= 30
+    def setup_db(production = true)
+      DataMapper.setup(:default, production ?
+        "sqlite://#{File.expand_path(@bulletindb)}" :
+        "sqlite3::memory:")
+      if !DataMapper.repository(:default).adapter.storage_exists?('bulletin_items')
+        DataMapper.auto_migrate! 
       end
+    end
+
+    def load_config
+      raise "No configuration found at '#{@bulletinrc}'." if !File.exists?(@bulletinrc)
+      app = self
+      Object.class_eval do
+        define_method(:set) { |opt, val| app.set(opt, val) }
+        define_method(:feed) { |uri| app.feed(uri) }
+      end
+      load(@bulletinrc, true)
+      @options[:browser] ||= 'firefox'
+      @options[:per_page] ||= (@term_height - 2)
+      @options[:expire] ||= 30
     end
 
     private
@@ -197,15 +210,6 @@ module Bulletin
         end
       end
       buffer.join("\n")
-    end
-
-    def self.setup_db(production = true)
-      DataMapper.setup(:default, production ?
-        "sqlite://#{File.expand_path('~/.bulletindb')}" :
-        "sqlite3::memory:")
-      if !DataMapper.repository(:default).adapter.storage_exists?('bulletin_items')
-        DataMapper.auto_migrate! 
-      end
     end
   end
 

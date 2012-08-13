@@ -44,10 +44,17 @@ You can show saved links with `--saved` or undo it with `--unsave`:
     % bulletin --saved
     % bulletin --unsave 20
 
-TODO
-====
+By default, bulletin uses the files `~/.bulletinrc` and `~/.bulletindb` to
+configure and store data.  This can be changed using `--configure`:
 
-* zsh autocompletion
+    % bulletin --configure ~/path/to/.bulletin --page 2
+
+The above will use `~/path/to/.bulletinrc` and `~/path/to/.bulletindb`.  This
+works best with an alias entry in your `.bashrc` or `.zshrc`.  Also, this is
+helpful if you want to maintain separate bulletins with different feeds:
+
+    alias bhome="bulletin --configure ~/.bulletin-home"
+    alias bwork="bulletin --configure ~/.bulletin-work"
 
 License
 =======
