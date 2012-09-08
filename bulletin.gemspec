@@ -1,8 +1,6 @@
-require File.expand_path('bulletin', File.dirname(__FILE__)) 
- 
 Gem::Specification.new do |s|
   s.name        = 'bulletin'
-  s.version     = Bulletin::VERSION
+  s.version     = '0.0.5'
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Hugh Bien']
   s.email       = ['hugh@hughbien.com']
