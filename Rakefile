@@ -31,5 +31,5 @@ end
 desc 'Remove generated files'
 task :clean do
   rm Dir.glob('*.gem')
-  rm_r 'coverage'
+  rm_rf 'coverage'
 end

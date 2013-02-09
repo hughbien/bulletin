@@ -8,7 +8,7 @@ require 'nokogiri'
 require 'date'
 
 module Bulletin
-  VERSION = '0.0.5'
+  VERSION = '0.0.6'
   EDITOR = ENV['EDITOR'] || 'vi'
   BULLETINRC = File.expand_path('~/.bulletinrc')
   BULLETINDB = File.expand_path('~/.bulletindb')
