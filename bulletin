@@ -8,7 +8,6 @@ ARGV.options do |o|
   o.set_summary_indent('  ')
   o.banner =    "Usage: #{File.basename($0)} [OPTIONS]"
   o.on('-a', '--all', 'show all links') { action = ['run', 0] }
-  o.on('-c', '--configure path', 'set config path') { |p| bulletin.configure(p) }
   o.on('-e', '--edit', 'edit config') { action = ['edit'] }
   o.on('-f', '--filter uri', 'filter news') { |f| bulletin.filter(f) }
   o.on('-o', '--open id', 'open link') { |id| action = ['open_item', id] }
