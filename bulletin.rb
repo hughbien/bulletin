@@ -1,9 +1,9 @@
 require 'rubygems'
+require 'feedzirra'
 require 'uri'
 require 'data_mapper'
 require 'dm-types'
 require 'colorize'
-require 'feedzirra'
 require 'nokogiri'
 require 'date'
 
@@ -183,7 +183,13 @@ module Bulletin
       lists = %w(li)
       swaps = {'br'=>"\n", 'hr'=>"\n"}
       node = Nokogiri::HTML(html)
-      node.xpath('.//text()').each { |t| t.content = t.text.gsub(/\s+/,' ') }
+      node.xpath('.//text()').each do |t|
+        if t.ancestors('pre').empty?
+          t.content = t.text.gsub(/\s+/,' ')
+        else
+          t.content = t.text + "\n"
+        end
+      end
       node.css(swaps.keys.join(',')).each { |n| n.replace(swaps[n.name]) }
       node.css(blocks.join(',')).each { |n| n.after("\n\n") }
       node.css(lists.join(',')).each { |n| n.after("\n").before("* ") }

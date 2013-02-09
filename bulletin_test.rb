@@ -8,7 +8,7 @@ require File.join(File.dirname(__FILE__), 'bulletin')
 require 'minitest/autorun'
 
 class BulletinTest < MiniTest::Unit::TestCase
-  Bulletin::App.setup_db(false)
+  Bulletin::App.new.setup_db(false)
 
   def setup
     @bulletin = Bulletin::App.new(false)
@@ -48,8 +48,15 @@ class BulletinTest < MiniTest::Unit::TestCase
     refute(@bulletin.send(:production?))
   end
 
+  def test_html_to_text
+    text = @bulletin.send(
+      :html_to_text,
+      "<!-- comment -->begin<pre><code>line 1\nline2</code></pre>end")
+    assert_equal("begin\n\nline 1\nline2\nend", text)
+  end
+
   private
   def sample_uri
-    File.join(File.expand_path(File.dirname(__FILE__)), 'sample.xml')
+    "file://#{File.join(File.expand_path(File.dirname(__FILE__)), 'sample.xml')}"
   end
 end

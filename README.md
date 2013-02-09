@@ -60,7 +60,6 @@ TODO
 ====
 
 * remove bulletin configure option
-* add bulletin -e
 
 License
 =======
