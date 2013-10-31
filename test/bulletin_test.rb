@@ -4,10 +4,11 @@ if ENV['COVERAGE']
   SimpleCov.command_name 'Unit Tests'
 end
 
-require File.join(File.dirname(__FILE__), 'bulletin')
+require File.expand_path(File.join(File.dirname(__FILE__), '..', 'lib', 'bulletin'))
+gem 'minitest'
 require 'minitest/autorun'
 
-class BulletinTest < MiniTest::Unit::TestCase
+class BulletinTest < Minitest::Test
   Bulletin::App.new.setup_db(false)
 
   def setup

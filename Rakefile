@@ -1,10 +1,10 @@
-require File.expand_path('bulletin', File.dirname(__FILE__))
+require File.expand_path(File.join(File.dirname(__FILE__), 'lib', 'bulletin'))
 
 task :default => :test
 
 desc 'Run tests'
 task :test do
-  print `ruby *_test.rb`
+  print `ruby test/*_test.rb`
 end
 
 desc 'Generate coverage report'
